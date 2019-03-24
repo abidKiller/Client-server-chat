@@ -4,6 +4,24 @@
 #include<iostream>
 #include<winSock2.h>
 
+SOCKET Connections[100];	//all connection list
+int totalconnections = 0;	//total connection count
+
+void ClientHandlerThread(int index) //index = the index in the SOCKET Connections array
+{
+	char buffer[256]; //Buffer to receive and send out messages from/to the clients
+	while (true)
+	{
+		recv(Connections[index], buffer, sizeof(buffer), NULL); //get message from client
+		for (int i = 0; i < totalconnections; i++) //For each client connection
+		{
+			if (i == index) //Skip user
+				continue; 
+			send(Connections[i], buffer, sizeof(buffer), NULL); //send the chat message to other client
+		}
+	}
+}
+
 using namespace std;
 int main()
 {
@@ -33,17 +51,21 @@ int main()
 
 		//socket to hold clients connection
 		SOCKET newConn;
-		
-		newConn = accept(slisten, (SOCKADDR*)&addr,&addrlen);
+		for (int i = 0; i < 10; i++) {
+			newConn = accept(slisten, (SOCKADDR*)&addr, &addrlen);
 
-		if (newConn == 0)
-		{
-			MessageBoxA(NULL, "Failed to accept client's connection ", "ERROR", MB_OK);
-		}
-		else {
-			cout << "client connected!!" << endl;
-			char msg[256] = "WELLCOME";
-			send(newConn, msg, sizeof(msg), NULL);
+			if (newConn == 0)
+			{
+				MessageBoxA(NULL, "Failed to accept client's connection ", "ERROR", MB_OK);
+			}
+			else {
+				cout << "client connected!!" << endl;
+				char msg[256] = "WELLCOME";
+				send(newConn, msg, sizeof(msg), NULL);
+				Connections[i] = newConn;
+				totalconnections++;
+				CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ClientHandlerThread, (LPVOID)(i), NULL, NULL); //To Create Thread to handle this client.
+			}
 		}
 		system("pause");
 	}
