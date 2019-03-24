@@ -16,14 +16,14 @@ int main()
 
 	}
 
-	int msgBoxReturn = MessageBoxA(NULL, "YOU ARE GOING TO CREATE A CONNECTION!!Might make your device vulnerable to malwares", "Attention", MB_OKCANCEL
+	int msgBoxReturn = MessageBoxA(NULL, "YOU ARE GOING TO CREATE A CONNECTION!!\nMight make your device vulnerable to malwares", "Attention", MB_OKCANCEL
 		| MB_ICONASTERISK);
 
 	if (msgBoxReturn == IDOK) //creating socket
     {
 		SOCKADDR_IN addr;
 		int addrlen = sizeof(addr);
-		addr.sin_addr.s_addr = inet_addr("192.168.0.11" /*its an example*/);  // the ip address of lan network
+		addr.sin_addr.s_addr = inet_addr("192.168.0.100"/*"192.168.0.11"*/ /*its an example*/);  // the ip address of lan network
 		addr.sin_port = htons(1111); //port 
 		addr.sin_family = AF_INET;  //IPv4
 
@@ -38,7 +38,7 @@ int main()
 		char msg[256];
 		recv(connection, msg, sizeof(msg), NULL);
 
-		printf("RECEIVED : %s", msg);
+		printf("RECEIVED : %s\n", msg);
 	
 	}
 	system("pause");
