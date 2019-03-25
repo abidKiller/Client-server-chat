@@ -1,2 +1,1 @@
-﻿  Source.cpp
-  client.vcxproj -> G:\`IUT\Sem-3 (2.1)\Prac\OOP\Group Product\CSE-4302-master\client\Debug\client.exe
+﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.Cpp.Platform.targets(57,5): error MSB8020: The build tools for v141 (Platform Toolset = 'v141') cannot be found. To build using the v141 build tools, please install v141 build tools.  Alternatively, you may upgrade to the current Visual Studio tools by selecting the Project menu or right-click the solution, and then selecting "Retarget solution".
