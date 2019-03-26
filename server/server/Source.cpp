@@ -15,33 +15,87 @@ enum Packet
 	P_Test
 };
 
+bool SendInt(int index, int _i)
+{
+	int RetnCheck = send(Connections[index], (char*)&_i, sizeof(int), NULL); //send int: _i
+	if (RetnCheck == SOCKET_ERROR) //If int failed to send due to connection issue
+		return false; //Return false: Connection issue
+	return true; //Return true: int successfully sent
+}
+
+bool GetInt(int index, int & _int)
+{
+	int RetnCheck = recv(Connections[index], (char*)&_int, sizeof(int), NULL); //receive integer
+	if (RetnCheck == SOCKET_ERROR) //If there is a connection issue
+		return false; //return false since we did not get the integer
+	return true;//Return true if we were successful in retrieving the int
+}
+
+bool SendPacketType(int index, Packet _packettype)
+{
+	int RetnCheck = send(Connections[index], (char*)&_packettype, sizeof(Packet), NULL); //Send packet: _packettype
+	if (RetnCheck == SOCKET_ERROR) //If packettype failed to send due to connection issue
+		return false; //Return false: Connection issue
+	return true; //Return true: int successfully sent
+}
+
+bool GetPacketType(int index, Packet & _packettype)
+{
+	int RetnCheck = recv(Connections[index], (char*)&_packettype, sizeof(Packet), NULL); //receive packet type (same as integer)
+	if (RetnCheck == SOCKET_ERROR) //If there is a connection issue
+		return false; //return false since we did not properly get the packet type
+	return true;//Return true if we were successful in retrieving the packet type
+}
+
+bool SendString(int index, std::string & _string)
+{
+	if (!SendPacketType(index, P_ChatMessage)) //Send packet type: Chat Message, If sending packet type fails...
+		return false; //Return false: Failed to send string
+	int bufferlength = _string.size(); //Find string buffer length
+	if (!SendInt(index, bufferlength)) //Send length of string buffer, If sending buffer length fails...
+		return false; //Return false: Failed to send string buffer length
+	int RetnCheck = send(Connections[index], _string.c_str(), bufferlength, NULL); //Send string buffer
+	if (RetnCheck == SOCKET_ERROR) //If failed to send string buffer
+		return false; //Return false: Failed to send string buffer
+	return true; //Return true: string successfully sent
+}
+
+bool GetString(int index, std::string & _string)
+{
+	int bufferlength; //Holds length of the message
+	if (!GetInt(index, bufferlength)) //Get length of buffer and store it in variable: bufferlength
+		return false; //If get int fails, return false
+	char * buffer = new char[bufferlength + 1]; //Allocate buffer
+	buffer[bufferlength] = '\0'; //Set last character of buffer to be a null terminator so we aren't printing memory that we shouldn't be looking at
+	int RetnCheck = recv(Connections[index], buffer, bufferlength, NULL); //receive message and store the message in buffer array, set RetnCheck to be the value recv returns to see if there is an issue with the connection
+	_string = buffer; //set string to received buffer message
+	delete[] buffer; //Deallocate buffer memory (cleanup to prevent memory leak)
+	if (RetnCheck == SOCKET_ERROR) //If connection is lost while getting message
+		return false; //If there is an issue with connection, return false
+	return true;//Return true if we were successful in retrieving the string
+}
+
 bool ProcessPacket(int index, Packet pack_type)
 {
 	switch (pack_type)
 	{
 	case P_ChatMessage://braces used so that variables can be declared
 	{
-		int bufferlength; //Length of the string
-		//Logic for receiving a string
+		std::string Message; //string to store our message we received
+		if (!GetString(index, Message)) //Get the chat message and store it in variable: Message
+			return false; //If we do not properly get the chat message, return false
 
-		int recvcheck = recv(Connections[index], (char*)&bufferlength, sizeof(int), NULL); //get buffer length
-		char *buffer = new char[bufferlength]; //Allocate buffer
-		recv(Connections[index], buffer, bufferlength, NULL); //get buffer message from client
-
-		for (int i = 0; i < TotalConnections; i++) //For each client connection
+		for (int i = 0; i < totalconnections; i++) //Next we need to send the message out to each user
 		{
-			if (i == index) //Don't send the chat message to the same user who sent it
+			if (i == index) //If connection is the user who sent the message...
+				continue;//Skip to the next user since there is no purpose in sending the message back to the user who sent it.
+			if (!SendString(i, Message)) //Send message to connection at index i, if message fails to be sent...
 			{
-				continue; //Skip user
+				std::cout << "Failed to send message from client ID: " << index << " to client ID: " << i << std::endl;
 			}
-				
-			Packet chatmessagepacket = P_ChatMessage; //create chat message packet to be sent
-			send(Connections[i], (char*)&chatmessagepacket, sizeof(Packet), NULL); //send chat message packet
-			send(Connections[i], (char*)&bufferlength, sizeof(int), NULL);//send the buffer length to client at index i
-			send(Connections[i], buffer, bufferlength, NULL);//send the chat message to client at index i
 		}
+		std::cout << "Processed chat message packet from user ID: " << index << std::endl;
 
-		delete[] buffer; //Deallocate buffer to stop from leaking memory
 		break;
 	}
 	default:
@@ -53,19 +107,19 @@ bool ProcessPacket(int index, Packet pack_type)
 
 void ClientHandlerThread(int index) //index = the index in the SOCKET Connections array
 {
+	Packet pack_type;
 	while (true)
 	{
-		//Getting Packet type
-		Packet pack_type;
-		recv(Connections[index], (char*)&pack_type, sizeof(Packet), NULL); //Receive packet type from client
-		
+		if (!GetPacketType(index, pack_type)) //Get packet type
+			break; //If there is an issue getting the packet type, exit this loop
 		//Packet processing check is not implemented yet so it would not work
 		if (!ProcessPacket(index, pack_type)) //If the packet is not properly processed
 		{
 			break; //break out of our client handler loop
 		}
-			
+
 	}
+	std::cout << "Lost connection to client ID:" << index << std::endl;
 	closesocket(Connections[index]);
 }
 
@@ -80,53 +134,45 @@ int main()
 		exit(1);
 	}
 
-	int msgBoxReturn = MessageBoxA(NULL, "YOU ARE GOING TO CREATE A CONNECTION!!\nMight make your device vulnerable to malwares", "Attention", MB_OKCANCEL | MB_ICONASTERISK);
+	//int msgBoxReturn = MessageBoxA(NULL, "YOU ARE GOING TO CREATE A CONNECTION!!\nMight make your device vulnerable to malwares", "Attention", MB_OKCANCEL | MB_ICONASTERISK);
 
-	
-		SOCKADDR_IN addr;
-		int addrlen = sizeof(addr);
-		addr.sin_addr.s_addr = inet_addr(/*"127.0.0.1"*/"172.17.37.17" /*its an example*/);  // the ip address of lan network
-		addr.sin_port = htons(1111); //port 
-		addr.sin_family = AF_INET;  //IPv4
 
-		SOCKET slisten = socket(AF_INET, SOCK_STREAM, NULL);
-		bind(slisten, (SOCKADDR*)&addr, sizeof(addr)); //bind adress to socket
+	SOCKADDR_IN addr;
+	int addrlen = sizeof(addr);
+	addr.sin_addr.s_addr = inet_addr("127.0.0.1"/*"172.17.37.17" /*its an example*/);  // the ip address of lan network
+	addr.sin_port = htons(1111); //port 
+	addr.sin_family = AF_INET;  //IPv4
 
-		//tell socket to listen
-		listen(slisten, SOMAXCONN);
+	SOCKET slisten = socket(AF_INET, SOCK_STREAM, NULL);
+	bind(slisten, (SOCKADDR*)&addr, sizeof(addr)); //bind adress to socket
 
-		//socket to hold clients connection
-		SOCKET newConn;
-		int conn_count = 0; 
-		for (int i = 0; i < 10; i++)
+	//tell socket to listen
+	listen(slisten, SOMAXCONN);
+
+	//socket to hold clients connection
+	SOCKET newConn;
+	int conn_count = 0;
+	for (int i = 0; i < 10; i++)
+	{
+		newConn = accept(slisten, (SOCKADDR*)&addr, &addrlen);
+
+		if (newConn == 0)
 		{
-			newConn = accept(slisten, (SOCKADDR*)&addr, &addrlen);
-
-			if (newConn == 0)
-			{
-				std::cout << "Failed to accept the client's connection." << std::endl;
-			}
-			else {
-				std::cout << "client connected!!" << endl;
-	
-				Connections[i] = newConn;
-				totalconnections++;
-				CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ClientHandlerThread, (LPVOID)(i), NULL, NULL); //To Create Thread to handle this client.
-				
-				std::string buff_test = "Message: Welcome! This is the message of the day!.";
-				int size = buff_test.size(); //Get size of message in bytes and store it in int size
-				Packet chatmessagepacket = P_ChatMessage; //Create packet type: Chat Message to be sent to the server
-				send(Connections[i], (char*)&chatmessagepacket, sizeof(Packet), NULL); //Send packet type: Chat Message
-				send(Connections[i], (char*)&size, sizeof(int), NULL); //send Size of message
-				send(Connections[i], buff_test.c_str(), buff_test.size(), NULL); //send Message
-
-				Packet testpacket = P_Test;
-				send(Connections[i], (char*)&testpacket, sizeof(Packet), NULL); //Send test packet
-				
-			}
+			std::cout << "Failed to accept the client's connection." << std::endl;
 		}
-		system("pause");
-	
-	
+		else {
+			std::cout << "client connected!!" << std::endl;
+
+			Connections[i] = newConn;
+			totalconnections++;
+			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ClientHandlerThread, (LPVOID)(i), NULL, NULL); //To Create Thread to handle this client.
+
+			std::string MOTD = "MOTD: Welcome! This is the message of the day!.";
+			SendString(i, MOTD);
+		}
+	}
+	system("pause");
+
+
 	exit(1);
 }
