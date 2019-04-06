@@ -2,9 +2,9 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #pragma comment(lib,"ws2_32.lib")
 #pragma warning(disable:4996)
-#include<iostream>
-#include<string>
-#include<WinSock2.h>
+#include <iostream>
+#include <WinSock2.h>
+#include <string>
 
 
 
@@ -21,6 +21,9 @@ public:
 
 private:
 	
+	bool sendall(int index, char *data, int totalbytes);
+	bool recvall(int index, char *data, int totalbytes);
+
 	bool ProcessPacket(int index, Packet pack_type);
 	static void ClientHandlerThread(int index);
 	
