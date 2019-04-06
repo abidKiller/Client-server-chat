@@ -31,11 +31,13 @@ private:
 	static void ClientThread();
 	
 	//getters
+	bool recvall(char *data, int totalbytes);
 	bool GetInt(int & _i);
 	bool GetPacketType(Packet & pack_type);
 	bool GetString(std::string & _string);
 	
 	//senders
+	bool sendall(char *data, int totalbytes);
 	bool SendInt(int _i);
 	bool SendPacketType(Packet pack_type);
 	
