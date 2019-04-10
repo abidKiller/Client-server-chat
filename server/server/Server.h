@@ -20,16 +20,16 @@ public:
 	bool ListenForNewConnection();
 
 private:
-	
+
 	bool sendall(int index, char *data, int totalbytes);
 	bool recvall(int index, char *data, int totalbytes);
 
 	bool ProcessPacket(int index, Packet pack_type);
 	static void ClientHandlerThread(int index);
-	
+
 	//int getter sender
-	bool SendInt(int index, int _int);
-	bool GetInt(int index, int & _int);
+	bool Sendint32_t(int index, int32_t _int32_t);
+	bool Getint32_t(int index, int32_t & _int32_t);
 
 	//packet getter sender
 	bool SendPacketType(int index, Packet pack_type);
