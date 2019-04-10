@@ -14,33 +14,33 @@ enum Packet
 	P_Test
 };
 
-class Client 
+class Client
 {
 public:
-	
+
 	Client(std::string IP, int port);
 	bool ConnectServer();
 	bool DisconnectServer();
-	
+
 	//string setter for user input
 	bool SendString(std::string & _string);
 
 private:
-	
+
 	bool ProcessPacket(Packet pack_type);
 	static void ClientThread();
-	
+
 	//getters
 	bool recvall(char *data, int totalbytes);
-	bool GetInt(int & _i);
+	bool Getint32_t(int32_t &_int32_t);
 	bool GetPacketType(Packet & pack_type);
 	bool GetString(std::string & _string);
-	
+
 	//senders
 	bool sendall(char *data, int totalbytes);
-	bool SendInt(int _i);
+	bool Sendint32_t(int32_t _int32_t);
 	bool SendPacketType(Packet pack_type);
-	
+
 	//colection elements
 	SOCKET connection;
 	SOCKADDR_IN addr;
@@ -49,4 +49,4 @@ private:
 
 };
 
-static Client *ptr; 
+static Client *ptr;
