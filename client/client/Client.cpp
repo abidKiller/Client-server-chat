@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Client.h"
 
 Client::Client(std::string IP, int port)
@@ -58,6 +59,33 @@ bool Client::ProcessPacket(Packet pack_type)
 		std::cout << message << std::endl;
 		break;
 	}
+	case P_FileTransferByteBuffer://if we're receiving byte buffer from server
+	{
+		int32_t buffersize;
+		if (!Getint32_t(buffersize))
+			return false;
+
+		if (!recvall(file.buffer, buffersize))//receive data and store to buffer of structure
+			return false;
+		file.outfileStream.write(file.buffer, buffersize);
+		file.byteswritten += buffersize;
+
+		cout << "received byte buffer for file transfer of size: " << buffersize << endl;
+
+		//send packet to request next byte buffer from server
+		SendPacketType(P_FileTransferRequestNextBuffer);
+
+		break;
+	}
+	case P_FileTransfer_EndOfFile:
+	{
+		cout << "file transfer completed. file received." << endl;
+		cout << "file name: " << file.fileName << endl;
+		cout << "file size (bytes): " << file.byteswritten << endl;
+		file.byteswritten = 0;
+		file.outfileStream.close();
+		break;
+	}
 	default:
 		std::cout << "Unknown packet: " << pack_type << std::endl;
 		break;
@@ -85,13 +113,40 @@ void Client::ClientThread()
 	std::cout << "Connection to server lost" << std::endl;
 	if (ptr->DisconnectServer()) //Try to close socket connection..., If connection socket was closed properly
 	{
-		std::cout << "Socket to the server was closed successfuly." << std::endl;
+		std::cout << "Socket to the server was closed fgffj successfuly." << std::endl;
 	}
 	else //If connection socket was not closed properly for some reason from our function
 	{
 		std::cout << "Socket was not able to be closed." << std::endl;
 	}
 
+}
+
+bool Client::RequestFile(string FileName)
+{
+	//open file in binary to outfilestream
+	file.outfileStream.open(FileName, ios::binary);
+	file.fileName = FileName;
+	file.byteswritten = 0;
+
+	//make sure file opens successfully
+	if (!file.outfileStream.is_open())
+	{
+		cout << "error: function(client::RequestFile) - unable to open file: " << FileName << " for writing." << endl;
+		return false;
+	}
+
+	cout << "requesting file from server: " << FileName << endl;
+
+	//send packet to server to request file
+	if (!SendPacketType(P_FileTransferRequestFile))
+		return false;
+
+	//send name of file to server
+	if (!SendString(FileName, false))
+		return false;
+
+	return true;
 }
 
 

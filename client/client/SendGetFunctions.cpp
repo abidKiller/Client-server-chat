@@ -79,10 +79,14 @@ bool Client::SendPacketType(Packet pack_type)
 		return false;
 	return true;
 }
-bool Client::SendString(std::string & _string)
+bool Client::SendString(std::string & _string, bool IncludePacketType)
 {
-	if (!SendPacketType(P_ChatMessage))
-		return false; //Return false: Failed to send string
+	if (IncludePacketType == true)
+	{
+		if (!SendPacketType(P_ChatMessage))
+			return false; //Return false: Failed to send string
+	}
+	
 	int32_t bufferlength = _string.size(); //Find string buffer length
 	if (!Sendint32_t(bufferlength)) //Send length of string buffer, If sending buffer length fails...
 		return false; //Return false: Failed to send string buffer length
