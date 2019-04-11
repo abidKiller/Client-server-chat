@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Server.h"
 
 Server::Server(int PORT, bool BroadcastPublically)
@@ -42,7 +43,7 @@ Server::Server(int PORT, bool BroadcastPublically)
 bool Server::ListenForNewConnection()
 {
 	SOCKET newConn;
-	int conn_count = 0;
+	//int conn_count = 0;
 	newConn = accept(slisten, (SOCKADDR*)&addr, &addrlen);
 	if (newConn == 0)
 	{
@@ -51,11 +52,12 @@ bool Server::ListenForNewConnection()
 	}
 	else {
 		std::cout << "client connected!!" << std::endl;
-		connections[totalconnections] = newConn;
+		connections[totalconnections].socket = newConn;
 		CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ClientHandlerThread, (LPVOID)(totalconnections), NULL, NULL); //To Create Thread to handle this client.
-		std::string MOTD = "MOTD: Welcome! This is the message of the day!.";
-		SendString(totalconnections, MOTD);
+		//std::string MOTD = "MOTD: Welcome! This is hjksfvservghgrvhw the message of the day!.";
+		//SendString(totalconnections, MOTD);
 		totalconnections++;
+		return true;
 	}
 }
 
@@ -82,12 +84,82 @@ bool Server::ProcessPacket(int index, Packet pack_type)
 
 		break;
 	}
+	case P_FileTransferRequestFile: //when client request a file from server
+	{
+		string FileName;
+		if (!GetString(index, FileName))
+			return false;
+		connections[index].file.infileStream.open(FileName, ios::binary | ios::ate);
+		if (!connections[index].file.infileStream.is_open())
+		{
+			cout << "client: " << index << " requested file: " << FileName << " , but that file doesn't exist." << endl;
+			string errmsg = "requested file: " + FileName + " doesn't exist or not found.";
+			if (!SendString(index, errmsg)) //send error msg to clients
+				return false;
+			return true;
+		}
+
+		connections[index].file.fileName = FileName;
+		connections[index].file.fileSize = connections[index].file.infileStream.tellg();
+		connections[index].file.infileStream.seekg(0);
+		connections[index].file.fileOffset = 0;
+
+		if (!HandleSendFile(index))//attempt to send byte buffer from file.
+			return false;
+
+		break;
+	}
+	case P_FileTransferRequestNextBuffer: //when client requests next buffer for current file
+	{
+		if (!HandleSendFile(index))//attempt to send byte buffer from file.
+			return false;
+		break;
+	}
 	default:
-		std::cout << "Unknown packet received." << std::endl;
+		std::cout << "unrecognized packet: " << pack_type << std::endl;
 		break;
 	}
 	return true;//did not handle the proceess for not processing packet
 }
+
+bool Server::HandleSendFile(int index)
+{
+	if (connections[index].file.fileOffset >= connections[index].file.fileSize)
+		return true;
+	if (!SendPacketType(index, P_FileTransferByteBuffer))//send packet type for file transfer byte buffer
+		return false;
+
+	connections[index].file.remainingBytes = connections[index].file.fileSize - connections[index].file.fileOffset;
+	if (connections[index].file.remainingBytes > connections[index].file.buffersize)
+	{
+		connections[index].file.infileStream.read(connections[index].file.buffer, connections[index].file.buffersize);
+		if (!Sendint32_t(index, connections[index].file.buffersize))//send int of buffersize
+			return false;
+		if (!sendall(index, connections[index].file.buffer, connections[index].file.buffersize))
+			return false;
+		connections[index].file.fileOffset += connections[index].file.buffersize;
+	}
+	else
+	{
+		connections[index].file.infileStream.read(connections[index].file.buffer, connections[index].file.remainingBytes);
+		if (!Sendint32_t(index, connections[index].file.remainingBytes))//send int of buffersize
+			return false;
+		if (!sendall(index, connections[index].file.buffer, connections[index].file.remainingBytes))
+			return false;
+		connections[index].file.fileOffset += connections[index].file.remainingBytes;
+	}
+
+	if (connections[index].file.fileOffset == connections[index].file.fileSize)
+	{
+		if (!SendPacketType(index, P_FileTransfer_EndOfFile))
+			return false;
+		cout << endl << "file sent: " << connections[index].file.fileName << endl;
+		cout << "file size(bytes): " << connections[index].file.fileSize << endl << endl;
+	}
+
+	return true;
+}
+
 
 void Server::ClientHandlerThread(int index)
 {
@@ -104,5 +176,5 @@ void Server::ClientHandlerThread(int index)
 
 	}
 	std::cout << "Lost connection to client index:" << index << std::endl;
-	closesocket(sptr->connections[index]);
+	closesocket(sptr->connections[index].socket);
 }
