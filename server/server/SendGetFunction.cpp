@@ -6,7 +6,7 @@ bool Server::recvall(int index, char *data, int totalbytes)
 	int bytesreceived = 0;
 	while (bytesreceived < totalbytes)
 	{
-		int RetnCheck = recv(connections[index], data + bytesreceived, totalbytes - bytesreceived, NULL);
+		int RetnCheck = recv(connections[index].socket, data + bytesreceived, totalbytes - bytesreceived, NULL);
 		if (RetnCheck == SOCKET_ERROR)
 			return false;
 		bytesreceived += RetnCheck;
@@ -20,7 +20,7 @@ bool Server::sendall(int index, char *data, int totalbytes)
 	int bytesent = 0;
 	while (bytesent < totalbytes)
 	{
-		int RetnCheck = send(connections[index], data + bytesent, totalbytes - bytesent, NULL);
+		int RetnCheck = send(connections[index].socket, data + bytesent, totalbytes - bytesent, NULL);
 		if (RetnCheck == SOCKET_ERROR)
 			return false;
 
