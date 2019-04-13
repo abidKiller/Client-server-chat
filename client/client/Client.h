@@ -5,48 +5,48 @@
 #include<iostream>
 #include<string>
 #include<WinSock2.h>
+#include "FileTransferData.h"
+#include "PacketType.h"
+
+using namespace std;
 
 
 
-enum Packet
-{
-	P_ChatMessage,
-	P_Test
-};
-
-class Client 
+class Client
 {
 public:
-	
+
 	Client(std::string IP, int port);
 	bool ConnectServer();
 	bool DisconnectServer();
-	
+
 	//string setter for user input
-	bool SendString(std::string & _string);
+	bool SendString(string & _string, bool IncludePacketType = true);
+	bool RequestFile(string FileName);
 
 private:
-	
-	bool ProcessPacket(Packet pack_type);
+
+	bool ProcessPacket(PacketType pack_type);
 	static void ClientThread();
-	
+
 	//getters
 	bool recvall(char *data, int totalbytes);
-	bool GetInt(int & _i);
-	bool GetPacketType(Packet & pack_type);
-	bool GetString(std::string & _string);
-	
+	bool Getint32_t(int32_t &_int32_t);
+	bool GetPacketType(PacketType& pack_type);
+	bool GetString(string & _string);
+
 	//senders
 	bool sendall(char *data, int totalbytes);
-	bool SendInt(int _i);
-	bool SendPacketType(Packet pack_type);
-	
+	bool Sendint32_t(int32_t _int32_t);
+	bool SendPacketType(PacketType pack_type);
+
 	//colection elements
 	SOCKET connection;
 	SOCKADDR_IN addr;
 	int addrlen = sizeof(addr);
+	FileTransferData file;
 
 
 };
 
-static Client *ptr; 
+static Client *ptr;

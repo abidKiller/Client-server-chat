@@ -1,3 +1,4 @@
+//#include "pch.h"
 #include "Client.h"
 
 Client::Client(std::string IP, int port)
@@ -25,7 +26,7 @@ bool Client::ConnectServer()
 		MessageBoxA(NULL, "FAILED TO CONNECT", "Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
-
+	std::cout << "Connected!" << std::endl;
 	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ClientThread, NULL, NULL, NULL); //Create the client thread that receives data server sends.
 
 	return true;
@@ -46,11 +47,11 @@ bool Client::DisconnectServer()
 }
 
 
-bool Client::ProcessPacket(Packet pack_type)
+bool Client::ProcessPacket(PacketType pack_type)
 {
 	switch (pack_type)
 	{
-	case P_ChatMessage:
+	case PacketType::ChatMessage:
 	{
 		std::string message;	//to store the message
 		if (!GetString(message))	//get string with error check
@@ -58,8 +59,35 @@ bool Client::ProcessPacket(Packet pack_type)
 		std::cout << message << std::endl;
 		break;
 	}
+	case PacketType::FileTransferByteBuffer://if we're receiving byte buffer from server
+	{
+		int32_t buffersize;
+		if (!Getint32_t(buffersize))
+			return false;
+
+		if (!recvall(file.buffer, buffersize))//receive data and store to buffer of structure
+			return false;
+		file.outfileStream.write(file.buffer, buffersize);
+		file.byteswritten += buffersize;
+
+		cout << "received byte buffer for file transfer of size: " << buffersize << endl;
+
+		//send packet to request next byte buffer from server
+		if (!SendPacketType(PacketType::FileTransferRequestNextBuffer)) //send PacketType type to request next byte buffer (if one exists)
+			return false;
+		break;
+	}
+	case PacketType::FileTransfer_EndOfFile:
+	{
+		cout << "file transfer completed. file received." << endl;
+		cout << "file name: " << file.fileName << endl;
+		cout << "file size (bytes): " << file.byteswritten << endl;
+		file.byteswritten = 0;
+		file.outfileStream.close();
+		break;
+	}
 	default:
-		std::cout << "Unknown packet: " << pack_type << std::endl;
+		std::cout << "Unknown packet: " << (int32_t)pack_type << std::endl;
 		break;
 	}
 	return true;//Does not handle if not processed
@@ -69,7 +97,7 @@ bool Client::ProcessPacket(Packet pack_type)
 void Client::ClientThread()
 {
 	//Handling packet types and their sizes rather than just sending char
-	Packet pack_type;
+	PacketType pack_type;
 	while (true)
 	{
 		//First get the packet type
@@ -85,13 +113,40 @@ void Client::ClientThread()
 	std::cout << "Connection to server lost" << std::endl;
 	if (ptr->DisconnectServer()) //Try to close socket connection..., If connection socket was closed properly
 	{
-		std::cout << "Socket to the server was closed successfuly." << std::endl;
+		std::cout << "Socket to the server was closed fgffj successfuly." << std::endl;
 	}
 	else //If connection socket was not closed properly for some reason from our function
 	{
 		std::cout << "Socket was not able to be closed." << std::endl;
 	}
 
+}
+
+bool Client::RequestFile(std::string FileName)
+{
+	//open file in binary to outfilestream
+	file.outfileStream.open(FileName, ios::binary);
+	file.fileName = FileName;
+	file.byteswritten = 0;
+
+	//make sure file opens successfully
+	if (!file.outfileStream.is_open())
+	{
+		cout << "error: function(client::RequestFile) - unable to open file: " << FileName << " for writing." << endl;
+		return false;
+	}
+
+	cout << "requesting file from server: " << FileName << endl;
+
+	//send packet to server to request file
+	if (!SendPacketType(PacketType::FileTransferRequestFile))
+		return false;
+
+	//send name of file to server
+	if (!SendString(FileName, false))
+		return false;
+
+	return true;
 }
 
 

@@ -1,2 +1,6 @@
-﻿  Source.cpp
-  server.vcxproj -> G:\`IUT\Sem-3 (2.1)\Prac\OOP\Group Product\CSE-4302-master\server\Debug\server.exe
+﻿  SendGetFunction.cpp
+  Server.cpp
+D:\Downloads\Compressed\CSE-4302-tmt02_p1_3\CSE-4302-tmt02_p1\server\server\Server.cpp(101): warning C4244: '=': conversion from 'std::streamoff' to 'int', possible loss of data
+  Source.cpp
+  Generating Code...
+  server.vcxproj -> D:\Downloads\Compressed\CSE-4302-tmt02_p1_3\CSE-4302-tmt02_p1\server\Debug\server.exe
