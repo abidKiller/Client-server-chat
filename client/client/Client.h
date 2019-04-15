@@ -1,52 +1,44 @@
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-#pragma comment(lib,"ws2_32.lib")
-#pragma warning(disable:4996)
-#include<iostream>
-#include<string>
-#include<WinSock2.h>
 
+#pragma comment(lib,"ws2_32.lib") //Required for WinSock
+#include <WinSock2.h> //For win sockets
+#include <string> //For std::string
+#include <iostream> //For std::cout, std::endl, std::cin.getline
+#include "FileTransferData.h"
+#include "PacketType.h"
 
-
-enum Packet
+class Client
 {
-	P_ChatMessage,
-	P_Test
-};
+public: //Public functions
+	Client(std::string IP, int PORT);
+	bool Connect();
 
-class Client 
-{
+	bool SendString(std::string & _string, bool IncludePacketType = true);
+	bool CloseConnection();
+	bool RequestFile(std::string FileName);
+private: //Private functions
+	bool ProcessPacketType(PacketType _PacketType);
+	static void ClientThread();
+	//Sending Funcs
+	bool sendall(char * data, int totalbytes);
+	bool Sendint32_t(int32_t _int32_t);
+	bool SendPacketType(PacketType _PacketType);
+	
+
+	//Getting Funcs
+	bool recvall(char * data, int totalbytes);
+	bool Getint32_t(int32_t & _int32_t);
+	bool GetPacketType(PacketType & _PacketType);
+	bool GetString(std::string & _string);
+
 public:
 	
-	Client(std::string IP, int port);
-	bool ConnectServer();
-	bool DisconnectServer();
-	
-	//string setter for user input
-	bool SendString(std::string & _string);
-
 private:
-	
-	bool ProcessPacket(Packet pack_type);
-	static void ClientThread();
-	
-	//getters
-	bool recvall(char *data, int totalbytes);
-	bool GetInt(int & _i);
-	bool GetPacketType(Packet & pack_type);
-	bool GetString(std::string & _string);
-	
-	//senders
-	bool sendall(char *data, int totalbytes);
-	bool SendInt(int _i);
-	bool SendPacketType(Packet pack_type);
-	
-	//colection elements
-	SOCKET connection;
-	SOCKADDR_IN addr;
-	int addrlen = sizeof(addr);
-
-
+	FileTransferData file; //Object that contains information about our file that is being received from the server.
+	SOCKET Connection;//This client's connection to the server
+	SOCKADDR_IN addr; //Address to be binded to our Connection socket
+	int sizeofaddr = sizeof(addr); //Need sizeofaddr for the connect function
 };
 
-static Client *ptr; 
+static Client * clientptr; //This client ptr is necessary so that the ClientThread method can access the Client instance/methods. Since the ClientThread method is static, this is the simplest workaround I could think of since there will only be one instance of the client.
