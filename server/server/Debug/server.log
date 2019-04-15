@@ -1,2 +1,9 @@
-﻿  Source.cpp
-  server.vcxproj -> G:\`IUT\Sem-3 (2.1)\Prac\OOP\Group Product\CSE-4302-master\server\Debug\server.exe
+﻿  Packet.cpp
+  PacketManager.cpp
+  PacketStructs.cpp
+  SendGetMethods.cpp
+  Server.cpp
+e:\cse4303\server\server\server.cpp(143): warning C4244: '=': conversion from 'std::streamoff' to 'int', possible loss of data
+  Source.cpp
+  Generating Code...
+  server.vcxproj -> E:\cse4303\server\Debug\server.exe

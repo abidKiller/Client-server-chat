@@ -1,12 +1,11 @@
-//server
-#include"Server.h"
+#include "Server.h"
 
-//using namespace std;
 int main()
 {
-	Server myServer(1111, false);
-	for (int i = 0; i < 100; i++) {
-		myServer.ListenForNewConnection();
+	Server MyServer(1111); //Create server on port 100
+	for (int i = 0; i < 100; i++) //Up to 100 times...
+	{
+		MyServer.ListenForNewConnection(); //Accept new connection (if someones trying to connect)
 	}
 	system("pause");
 	return 0;
