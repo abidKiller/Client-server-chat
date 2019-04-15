@@ -5,13 +5,23 @@
 #include <iostream>
 #include <WinSock2.h>
 #include <string>
+#include "FileTransferData.h"
 
-
+using namespace std;
 
 enum Packet
 {
 	P_ChatMessage,
-	P_Test
+	P_FileTransferRequestFile, //sent to request file
+	P_FileTransfer_EndOfFile, //sent for when file transfer is complete
+	P_FileTransferByteBuffer, //sent before sending a byte buffer for file transfer
+	P_FileTransferRequestNextBuffer //sent to request next buffer for file
+};
+
+struct Connection
+{
+	SOCKET socket;
+	FileTransferData file;
 };
 
 class Server {
@@ -20,16 +30,16 @@ public:
 	bool ListenForNewConnection();
 
 private:
-	
+
 	bool sendall(int index, char *data, int totalbytes);
 	bool recvall(int index, char *data, int totalbytes);
 
 	bool ProcessPacket(int index, Packet pack_type);
 	static void ClientHandlerThread(int index);
-	
+
 	//int getter sender
-	bool SendInt(int index, int _int);
-	bool GetInt(int index, int & _int);
+	bool Sendint32_t(int index, int32_t _int32_t);
+	bool Getint32_t(int index, int32_t & _int32_t);
 
 	//packet getter sender
 	bool SendPacketType(int index, Packet pack_type);
@@ -38,6 +48,7 @@ private:
 	//string getter sender
 	bool SendString(int index, std::string & _string);
 	bool GetString(int index, std::string & _string);
+	bool HandleSendFile(int index);
 
 private:
 	//socket address
@@ -46,7 +57,7 @@ private:
 	//listener socket
 	SOCKET slisten;
 	//socket
-	SOCKET connections[100];	//all connection list
+	Connection connections[100];	//all connection list
 	int totalconnections = 0;	//total connection count
 };
 

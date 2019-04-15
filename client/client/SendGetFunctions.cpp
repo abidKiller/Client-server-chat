@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Client.h"
 
 bool Client::recvall(char *data, int totalbytes)
@@ -28,24 +29,27 @@ bool Client::sendall(char *data, int totalbytes)
 	return true;
 }
 
-bool Client::GetInt(int & _i)
+bool Client::Getint32_t(int32_t &_int32_t)
 {
-	if (!recvall((char*)&_i, sizeof(int)))
+	if (!recvall((char*)&_int32_t, sizeof(int32_t)))
 		return false;
+	_int32_t = ntohl(_int32_t);
 	return true;
 }
 
 bool Client::GetPacketType(Packet & pack_type)
 {
-	if (!recvall((char*)&pack_type, sizeof(Packet)))
+	int packettype;
+	if (!Getint32_t(packettype))
 		return false;
+	pack_type = (Packet)packettype;
 	return true;
 }
 
 bool Client::GetString(std::string & _string)
 {
-	int bufferlength; //Holds length of the message
-	if (!GetInt(bufferlength)) //Get length of buffer and store it in variable: bufferlength
+	int32_t bufferlength; //Holds length of the message
+	if (!Getint32_t(bufferlength)) //Get length of buffer and store it in variable: bufferlength
 		return false; //If get int fails, return false
 	char * buffer = new char[bufferlength + 1]; //Allocate buffer
 	buffer[bufferlength] = '\0'; //Set last character of buffer to be a null terminator so we aren't printing memory that we shouldn't be looking at
@@ -61,27 +65,35 @@ bool Client::GetString(std::string & _string)
 	return true;//Return true if we were successful in retrieving the string	return false;
 }
 
-bool Client::SendInt(int _i)
+bool Client::Sendint32_t(int32_t _int32_t)
 {
-	if (!sendall((char*)&_i, sizeof(int)))
+	_int32_t = htonl(_int32_t);
+	if (!sendall((char*)&_int32_t, sizeof(int32_t)))
 		return false;
 	return true;
 }
 
 bool Client::SendPacketType(Packet pack_type)
 {
-	if (!sendall((char*)&pack_type, sizeof(Packet)))
+	if (!Sendint32_t(pack_type))
 		return false;
 	return true;
 }
-bool Client::SendString(std::string & _string)
+bool Client::SendString(std::string & _string, bool IncludePacketType)
 {
-	if (!SendPacketType(P_ChatMessage))
-		return false; //Return false: Failed to send string
-	int bufferlength = _string.size(); //Find string buffer length
-	if (!SendInt(bufferlength)) //Send length of string buffer, If sending buffer length fails...
+	if (IncludePacketType == true)
+	{
+		if (!SendPacketType(P_ChatMessage))
+			return false; //Return false: Failed to send string
+	}
+	
+	int32_t bufferlength = _string.size(); //Find string buffer length
+	if (!Sendint32_t(bufferlength)) //Send length of string buffer, If sending buffer length fails...
 		return false; //Return false: Failed to send string buffer length
 	if (!sendall((char*)_string.c_str(), bufferlength))
 		return false;
 	return true; //Return true: string successfully sent
 }
+
+
+
