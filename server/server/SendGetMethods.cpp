@@ -26,27 +26,12 @@ bool Server::sendall(int ID, char * data, int totalbytes)
 	return true; //Success!
 }
 
-bool Server::Sendint32_t(int ID, int32_t _int32_t)
-{
-	_int32_t = htonl(_int32_t); //Convert long from Host Byte Order to Network Byte Order
-	if (!sendall(ID, (char*)&_int32_t, sizeof(int32_t))) //Try to send long (4 byte int)... If int fails to send
-		return false; //Return false: int not successfully sent
-	return true; //Return true: int successfully sent
-}
-
 bool Server::Getint32_t(int ID, int32_t & _int32_t)
 {
 	if (!recvall(ID, (char*)&_int32_t, sizeof(int32_t))) //Try to receive long (4 byte int)... If int fails to be recv'd
 		return false; //Return false: Int not successfully received
 	_int32_t = ntohl(_int32_t); //Convert long from Network Byte Order to Host Byte Order
 	return true;//Return true if we were successful in retrieving the int
-}
-
-bool Server::SendPacketType(int ID, PacketType _packettype)
-{
-	if (!Sendint32_t(ID, (int32_t)_packettype)) //Try to send packet type... If packet type fails to send
-		return false; //Return false: packet type not successfully sent
-	return true; //Return true: packet type successfully sent
 }
 
 bool Server::GetPacketType(int ID, PacketType & _packettype)
