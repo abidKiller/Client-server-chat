@@ -1,2 +1,7 @@
-﻿  LINK : E:\cse4303\client\Debug\client.exe not found or not built by the last incremental link; performing full link
-  client.vcxproj -> E:\cse4303\client\Debug\client.exe
+﻿  Client.cpp
+  Packet.cpp
+  PacketManager.cpp
+  SendGetMethods.cpp
+  Source.cpp
+  Generating Code...
+  client.vcxproj -> G:\`IUT\Sem-3 (2.1)\Prac\OOP\Group Product\New folder\CSE-4302-mast\client\Debug\client.exe

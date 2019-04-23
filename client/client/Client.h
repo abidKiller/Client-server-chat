@@ -24,7 +24,7 @@ private: //Private functions
 	bool sendall(char * data, int totalbytes);
 	bool Sendint32_t(int32_t _int32_t);
 	bool SendPacketType(PacketType _PacketType);
-	
+
 
 	//Getting Funcs
 	bool recvall(char * data, int totalbytes);
@@ -33,7 +33,7 @@ private: //Private functions
 	bool GetString(std::string & _string);
 
 public:
-	
+
 private:
 	FileTransferData file; //Object that contains information about our file that is being received from the server.
 	SOCKET Connection;//This client's connection to the server
