@@ -31,14 +31,11 @@ public:
 	bool ListenForNewConnection();
 
 private:
-	
+
 	bool sendall(int ID, char * data, int totalbytes);
 	bool recvall(int ID, char * data, int totalbytes);
 
-	bool Sendint32_t(int ID, int32_t _int32_t);
 	bool Getint32_t(int ID, int32_t & _int32_t);
-
-	bool SendPacketType(int ID, PacketType _packettype);
 	bool GetPacketType(int ID, PacketType & _packettype);
 
 	void SendString(int ID, std::string & _string);
@@ -49,7 +46,7 @@ private:
 
 	static void ClientHandlerThread(int ID);
 	static void PacketSenderThread();
-	
+
 	void DisconnectClient(int ID); //Called to properly disconnect and clean up a client (if possible)
 private:
 	std::vector<std::shared_ptr<Connection>> connections;

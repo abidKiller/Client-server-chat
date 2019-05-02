@@ -82,7 +82,7 @@ bool Server::ProcessPacket(int ID, PacketType _packettype)
 		if (!GetString(ID, message)) //Get the chat message and store it in variable: Message
 			return false; //If we do not properly get the chat message, return false
 						  //Next we need to send the message out to each user
-		
+
 		for (size_t i = 0; i < connections.size(); i++)
 		{
 			if (connections[i]->ActiveConnection == false) //if connection is not active
@@ -113,7 +113,7 @@ bool Server::ProcessPacket(int ID, PacketType _packettype)
 		connections[ID]->file.fileSize = connections[ID]->file.infileStream.tellg(); //Get file size
 		connections[ID]->file.infileStream.seekg(0); //Set cursor position in file back to offset 0 for when we read file
 		connections[ID]->file.fileOffset = 0; //Update file offset for knowing when we hit end of file
-		
+
 		if (!HandleSendFile(ID)) //Attempt to send byte buffer from file. If failure...
 			return false;
 		break;
@@ -137,34 +137,29 @@ bool Server::HandleSendFile(int ID)
 {
 	if (connections[ID]->file.fileOffset >= connections[ID]->file.fileSize) //If end of file reached then return true and skip sending any bytes
 		return true;
-	if (!SendPacketType(ID, PacketType::FileTransferByteBuffer)) //Send packet type for file transfer byte buffer
-		return false;
-	
+
 	connections[ID]->file.remainingBytes = connections[ID]->file.fileSize - connections[ID]->file.fileOffset; //calculate remaining bytes
 	if (connections[ID]->file.remainingBytes > connections[ID]->file.buffersize) //if remaining bytes > max byte buffer
 	{
-		connections[ID]->file.infileStream.read(connections[ID]->file.buffer, connections[ID]->file.buffersize); //read in max buffer size bytes
-		if (!Sendint32_t(ID, connections[ID]->file.buffersize)) //send int of buffer size
-			return false;
-		if (!sendall(ID, connections[ID]->file.buffer, connections[ID]->file.buffersize)) //send bytes for buffer
-			return false;
+		PS::FileDataBuffer fileData; //Create FileDataBuffer packet structure
+		connections[ID]->file.infileStream.read(fileData.databuffer, connections[ID]->file.buffersize); //read in max buffer size bytes
+		fileData.size = connections[ID]->file.buffersize; //Set FileDataBuffer buffer size
 		connections[ID]->file.fileOffset += connections[ID]->file.buffersize; //increment fileoffset by # of bytes written
+		connections[ID]->pm.Append(fileData.toPacket()); //Append fileData packet to packet manager
 	}
 	else
 	{
-		connections[ID]->file.infileStream.read(connections[ID]->file.buffer, connections[ID]->file.remainingBytes); //read in remaining bytes
-		if (!Sendint32_t(ID, connections[ID]->file.remainingBytes)) //send int of buffer size
-			return false;
-		if (!sendall(ID, connections[ID]->file.buffer, connections[ID]->file.remainingBytes)) //send bytes for buffer
-			return false;
+		PS::FileDataBuffer fileData; //Create FileDataBuffer packet structure
+		connections[ID]->file.infileStream.read(fileData.databuffer, connections[ID]->file.remainingBytes); //read in remaining bytes
+		fileData.size = connections[ID]->file.remainingBytes; //Set FileDataBuffer remaining bytes
 		connections[ID]->file.fileOffset += connections[ID]->file.remainingBytes; //increment fileoffset by # of bytes written
+		connections[ID]->pm.Append(fileData.toPacket()); //Append fileData packet to packet manager
 	}
 
 	if (connections[ID]->file.fileOffset == connections[ID]->file.fileSize) //If we are at end of file
 	{
-		if (!SendPacketType(ID, PacketType::FileTransfer_EndOfFile)) //Send end of file packet
-			return false;
-		//Print out data on server details about file that was sent
+		Packet EOFPacket(PacketType::FileTransfer_EndOfFile); //Create packet to be appended for end of file
+		connections[ID]->pm.Append(EOFPacket); //Append end of file packet to packet manager for this client connection
 		std::cout << std::endl << "File sent: " << connections[ID]->file.fileName << std::endl;
 		std::cout << "File size(bytes): " << connections[ID]->file.fileSize << std::endl << std::endl;
 	}
@@ -221,7 +216,7 @@ void Server::DisconnectClient(int ID) //Disconnects a client and cleans up socke
 		connections.pop_back(); //Erase last connection from vector
 		//After cleaning up that connection, check if there are any more connections that can be erased (only connections at the end of the vector can be erased)
 
-		for (size_t i = connections.size() - 1; i >= 0 && connections.size()>0; i--)
+		for (size_t i = connections.size() - 1; i >= 0 && connections.size() > 0; i--)
 		{
 			if (connections[i]->ActiveConnection) //If connection is active we cannot remove any more connections from vector
 				break;

@@ -32,20 +32,20 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Client.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FileTransferData.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Packet.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="PacketType.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PacketManager.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PacketType.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="Packet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileTransferData.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
