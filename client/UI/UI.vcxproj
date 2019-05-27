@@ -126,6 +126,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Reference Include="MySql.Data, Version=8.0.16.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -133,9 +134,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Project5\MyForm.cpp" />
     <ClCompile Include="myUI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Project5\MyForm.h" />
     <ClInclude Include="myUI.h">
       <FileType>CppForm</FileType>
     </ClInclude>

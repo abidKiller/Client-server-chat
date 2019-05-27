@@ -1,4 +1,6 @@
 #pragma once
+#include <windows.h>
+#include "MyForm.h"
 
 namespace UI {
 
@@ -8,6 +10,8 @@ namespace UI {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
+	using namespace MySql::Data::MySqlClient;
+	using namespace Project5;
 
 	/// <summary>
 	/// Summary for myUI
@@ -91,20 +95,21 @@ namespace UI {
 			// pictureBox1
 			// 
 			this->pictureBox1->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"pictureBox1.Image")));
-			this->pictureBox1->Location = System::Drawing::Point(128, 58);
+			this->pictureBox1->Location = System::Drawing::Point(171, 71);
+			this->pictureBox1->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
 			this->pictureBox1->Name = L"pictureBox1";
-			this->pictureBox1->Size = System::Drawing::Size(93, 80);
+			this->pictureBox1->Size = System::Drawing::Size(124, 98);
 			this->pictureBox1->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
 			this->pictureBox1->TabIndex = 0;
 			this->pictureBox1->TabStop = false;
-			
 			// 
 			// pictureBox2
 			// 
 			this->pictureBox2->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"pictureBox2.Image")));
-			this->pictureBox2->Location = System::Drawing::Point(47, 198);
+			this->pictureBox2->Location = System::Drawing::Point(63, 244);
+			this->pictureBox2->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
 			this->pictureBox2->Name = L"pictureBox2";
-			this->pictureBox2->Size = System::Drawing::Size(34, 29);
+			this->pictureBox2->Size = System::Drawing::Size(45, 36);
 			this->pictureBox2->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
 			this->pictureBox2->TabIndex = 1;
 			this->pictureBox2->TabStop = false;
@@ -113,9 +118,10 @@ namespace UI {
 			// pictureBox3
 			// 
 			this->pictureBox3->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"pictureBox3.Image")));
-			this->pictureBox3->Location = System::Drawing::Point(47, 250);
+			this->pictureBox3->Location = System::Drawing::Point(63, 308);
+			this->pictureBox3->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
 			this->pictureBox3->Name = L"pictureBox3";
-			this->pictureBox3->Size = System::Drawing::Size(34, 33);
+			this->pictureBox3->Size = System::Drawing::Size(45, 41);
 			this->pictureBox3->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
 			this->pictureBox3->TabIndex = 2;
 			this->pictureBox3->TabStop = false;
@@ -130,10 +136,11 @@ namespace UI {
 				static_cast<System::Byte>(0)));
 			this->userName->ForeColor = System::Drawing::SystemColors::MenuHighlight;
 			this->userName->HideSelection = false;
-			this->userName->Location = System::Drawing::Point(87, 207);
+			this->userName->Location = System::Drawing::Point(116, 255);
+			this->userName->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
 			this->userName->Multiline = true;
 			this->userName->Name = L"userName";
-			this->userName->Size = System::Drawing::Size(163, 21);
+			this->userName->Size = System::Drawing::Size(217, 26);
 			this->userName->TabIndex = 3;
 			this->userName->TabStop = false;
 			this->userName->Text = L"Username";
@@ -146,9 +153,10 @@ namespace UI {
 			this->login->Font = (gcnew System::Drawing::Font(L"Modern No. 20", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->login->ForeColor = System::Drawing::SystemColors::ControlText;
-			this->login->Location = System::Drawing::Point(47, 352);
+			this->login->Location = System::Drawing::Point(63, 433);
+			this->login->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
 			this->login->Name = L"login";
-			this->login->Size = System::Drawing::Size(265, 36);
+			this->login->Size = System::Drawing::Size(353, 44);
 			this->login->TabIndex = 5;
 			this->login->Text = L"Login";
 			this->login->TextImageRelation = System::Windows::Forms::TextImageRelation::TextAboveImage;
@@ -164,16 +172,16 @@ namespace UI {
 				static_cast<System::Byte>(0)));
 			this->password->ForeColor = System::Drawing::SystemColors::MenuHighlight;
 			this->password->HideSelection = false;
-			this->password->Location = System::Drawing::Point(87, 263);
+			this->password->Location = System::Drawing::Point(116, 324);
+			this->password->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
 			this->password->Name = L"password";
 			this->password->ShortcutsEnabled = false;
-			this->password->Size = System::Drawing::Size(163, 14);
+			this->password->Size = System::Drawing::Size(217, 18);
 			this->password->TabIndex = 7;
 			this->password->TabStop = false;
 			this->password->Text = L"Password";
 			this->password->Click += gcnew System::EventHandler(this, &myUI::password_click);
 			this->password->TextChanged += gcnew System::EventHandler(this, &myUI::password_TextChanged);
-			
 			// 
 			// tableLayoutPanel1
 			// 
@@ -184,12 +192,13 @@ namespace UI {
 			this->tableLayoutPanel1->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
 				50)));
 			this->tableLayoutPanel1->ForeColor = System::Drawing::Color::LavenderBlush;
-			this->tableLayoutPanel1->Location = System::Drawing::Point(47, 228);
+			this->tableLayoutPanel1->Location = System::Drawing::Point(63, 281);
+			this->tableLayoutPanel1->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
 			this->tableLayoutPanel1->Name = L"tableLayoutPanel1";
 			this->tableLayoutPanel1->RowCount = 2;
 			this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 50)));
 			this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 50)));
-			this->tableLayoutPanel1->Size = System::Drawing::Size(264, 2);
+			this->tableLayoutPanel1->Size = System::Drawing::Size(352, 2);
 			this->tableLayoutPanel1->TabIndex = 8;
 			this->tableLayoutPanel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &myUI::tableLayoutPanel1_Paint);
 			// 
@@ -202,12 +211,13 @@ namespace UI {
 			this->tableLayoutPanel2->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
 				50)));
 			this->tableLayoutPanel2->ForeColor = System::Drawing::Color::LavenderBlush;
-			this->tableLayoutPanel2->Location = System::Drawing::Point(47, 281);
+			this->tableLayoutPanel2->Location = System::Drawing::Point(63, 346);
+			this->tableLayoutPanel2->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
 			this->tableLayoutPanel2->Name = L"tableLayoutPanel2";
 			this->tableLayoutPanel2->RowCount = 2;
 			this->tableLayoutPanel2->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 50)));
 			this->tableLayoutPanel2->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 50)));
-			this->tableLayoutPanel2->Size = System::Drawing::Size(265, 2);
+			this->tableLayoutPanel2->Size = System::Drawing::Size(353, 2);
 			this->tableLayoutPanel2->TabIndex = 9;
 			this->tableLayoutPanel2->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &myUI::tableLayoutPanel2_Paint);
 			// 
@@ -218,9 +228,10 @@ namespace UI {
 			this->exit->ForeColor = System::Drawing::Color::Transparent;
 			this->exit->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"exit.Image")));
 			this->exit->ImageAlign = System::Drawing::ContentAlignment::BottomLeft;
-			this->exit->Location = System::Drawing::Point(12, -83);
+			this->exit->Location = System::Drawing::Point(16, -102);
+			this->exit->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
 			this->exit->Name = L"exit";
-			this->exit->Size = System::Drawing::Size(310, 71);
+			this->exit->Size = System::Drawing::Size(413, 87);
 			this->exit->TabIndex = 11;
 			this->exit->UseMnemonic = false;
 			this->exit->UseVisualStyleBackColor = false;
@@ -232,9 +243,10 @@ namespace UI {
 			this->regis->Font = (gcnew System::Drawing::Font(L"Modern No. 20", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->regis->ForeColor = System::Drawing::Color::FloralWhite;
-			this->regis->Location = System::Drawing::Point(47, 402);
+			this->regis->Location = System::Drawing::Point(63, 495);
+			this->regis->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
 			this->regis->Name = L"regis";
-			this->regis->Size = System::Drawing::Size(264, 35);
+			this->regis->Size = System::Drawing::Size(352, 43);
 			this->regis->TabIndex = 12;
 			this->regis->Text = L"Register";
 			this->regis->UseVisualStyleBackColor = false;
@@ -245,19 +257,21 @@ namespace UI {
 			this->exiButton->FlatStyle = System::Windows::Forms::FlatStyle::Popup;
 			this->exiButton->ForeColor = System::Drawing::Color::FloralWhite;
 			this->exiButton->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"exiButton.Image")));
-			this->exiButton->Location = System::Drawing::Point(345, 1);
+			this->exiButton->Location = System::Drawing::Point(460, 1);
+			this->exiButton->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
 			this->exiButton->Name = L"exiButton";
-			this->exiButton->Size = System::Drawing::Size(24, 24);
+			this->exiButton->Size = System::Drawing::Size(32, 30);
 			this->exiButton->TabIndex = 13;
 			this->exiButton->UseVisualStyleBackColor = false;
+			this->exiButton->Click += gcnew System::EventHandler(this, &myUI::exiButton_Click);
 			// 
 			// myUI
 			// 
-			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(25)), static_cast<System::Int32>(static_cast<System::Byte>(36)),
 				static_cast<System::Int32>(static_cast<System::Byte>(49)));
-			this->ClientSize = System::Drawing::Size(372, 468);
+			this->ClientSize = System::Drawing::Size(496, 576);
 			this->ControlBox = false;
 			this->Controls->Add(this->exiButton);
 			this->Controls->Add(this->regis);
@@ -272,6 +286,7 @@ namespace UI {
 			this->Controls->Add(this->pictureBox1);
 			this->ForeColor = System::Drawing::Color::Olive;
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::None;
+			this->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
 			this->Name = L"myUI";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Login";
@@ -285,6 +300,43 @@ namespace UI {
 		}
 #pragma endregion
 	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
+		String^ constring = L"datasource=127.0.0.1;port=3306;username=root;password=test123";
+		MySqlConnection^ conDataBase =gcnew MySqlConnection(constring);
+		MySqlCommand^ cmdDataBase =gcnew MySqlCommand("select * from mydb.user where username='"+this->userName->Text+"' and password='"+this->password->Text+"'", conDataBase);
+		MySqlDataReader^ myReader;
+
+		try
+		{
+			conDataBase->Open();
+			myReader=cmdDataBase->ExecuteReader();
+			int count = 0;
+			while (myReader->Read())
+			{
+				count++;
+			}
+			if (count == 1)
+			{
+				MessageBox::Show("Success!");
+				this->Hide();
+				MyForm^ f2 =gcnew MyForm();
+				f2->ShowDialog();
+
+
+			}
+				
+			else if (count > 1)
+				MessageBox::Show("Denied!");
+			else
+				MessageBox::Show("Wrong!");
+
+		}
+
+
+		catch(Exception^ex)
+		{
+			MessageBox::Show(ex->Message);
+		}
+
 	}
 private: System::Void textBox1_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 }
@@ -327,5 +379,8 @@ private: System::Void password_click(System::Object^  sender, System::EventArgs^
 		
 
 
+private: System::Void exiButton_Click(System::Object^  sender, System::EventArgs^  e) {
+	Application::Exit();
+}
 };
 }
